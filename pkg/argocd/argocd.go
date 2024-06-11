@@ -42,64 +42,86 @@ type (
 	GetApplicationsResponse struct {
 		Items []struct {
 			Metadata struct {
-				Annotations                map[string]string        `json:"annotations"`
-				CreationTimestamp          time.Time                `json:"creationTimestamp"`
-				DeletionGracePeriodSeconds int64                    `json:"deletionGracePeriodSeconds"`
-				DeletionTimestamp          time.Time                `json:"deletionTimestamp"`
-				Finalizers                 []string                 `json:"finalizers"`
-				GenerateName               string                   `json:"generateName"`
-				Generation                 int64                    `json:"generation"`
-				Labels                     map[string]string        `json:"labels"`
-				ManagedFields              []map[string]interface{} `json:"managedFields"`
-				Name                       string                   `json:"name"`
-				Namespace                  string                   `json:"namespace"`
-				OwnerReference             []map[string]interface{} `json:"ownerReferences"`
-				ResourceVersion            string                   `json:"resourceVersion"`
-				SelfLink                   string                   `json:"selfLink"`
-				UID                        string                   `json:"uid"`
+				Annotations                map[string]string `json:"annotations"`
+				CreationTimestamp          time.Time         `json:"creationTimestamp"`
+				DeletionGracePeriodSeconds int64             `json:"deletionGracePeriodSeconds"`
+				DeletionTimestamp          time.Time         `json:"deletionTimestamp"`
+				Finalizers                 []string          `json:"finalizers"`
+				GenerateName               string            `json:"generateName"`
+				Generation                 int64             `json:"generation"`
+				Labels                     map[string]string `json:"labels"`
+				ManagedFields              []map[string]any  `json:"managedFields"`
+				Name                       string            `json:"name"`
+				Namespace                  string            `json:"namespace"`
+				OwnerReference             []map[string]any  `json:"ownerReferences"`
+				ResourceVersion            string            `json:"resourceVersion"`
+				SelfLink                   string            `json:"selfLink"`
+				UID                        string            `json:"uid"`
 			} `json:"metadata"`
-			Operation map[string]interface{} `json:"operation"`
-			Spec      map[string]interface{} `json:"spec"`
-			Status    map[string]interface{} `json:"status"`
+			Operation map[string]any `json:"operation"`
+			Spec      map[string]any `json:"spec"`
+			Status    struct {
+				Conditions          []map[string]any `json:"conditions"`
+				ControllerNamespace string           `json:"controllerNamespace"`
+				Health              struct {
+					Message string `json:"message"`
+					Status  string `json:"status"`
+				} `json:"health"`
+				History              []map[string]any `json:"history"`
+				ObservedAt           time.Time        `json:"observedAt"`
+				OperationState       map[string]any   `json:"operationState"`
+				ReconciledAt         time.Time        `json:"reconciledAt"`
+				ResourceHealthSource string           `json:"resourceHealthSource"`
+				Resources            []map[string]any `json:"resources"`
+				SourceType           string           `json:"sourceType"`
+				SourceTypes          []string         `json:"sourceTypes"`
+				Summary              map[string]any   `json:"summary"`
+				Sync                 struct {
+					ComparedTo map[string]any `json:"comparedTo"`
+					Revision   string
+					Revisions  []string `json:"revisions"`
+					Status     string   `json:"status"`
+				} `json:"sync"`
+			} `json:"status"`
 		} `json:"items"`
 		Metadata map[string]interface{} `json:"metadata"`
 	}
 
 	GetResouceTreeResponse struct {
 		Hosts []struct {
-			Name          string                   `json:"name"`
-			ResourcesInfo []map[string]interface{} `json:"resourcesInfo"`
-			SystemInfo    map[string]interface{}   `json:"systemInfo"`
+			Name          string           `json:"name"`
+			ResourcesInfo []map[string]any `json:"resourcesInfo"`
+			SystemInfo    map[string]any   `json:"systemInfo"`
 		} `json:"hosts"`
 		Nodes []struct {
-			CreatedAt       time.Time                `json:"createdAt"`
-			Health          map[string]interface{}   `json:"health"`
-			Images          []string                 `json:"images"`
-			Info            []map[string]interface{} `json:"info"`
-			NetworkingInfo  map[string]interface{}   `json:"networkingInfo"`
-			ParentRefs      []map[string]interface{} `json:"parentRefs"`
-			ResourceVersion string                   `json:"resourceVersion"`
-			Group           string                   `json:"group"`
-			Kind            string                   `json:"kind"`
-			Name            string                   `json:"name"`
-			Namespace       string                   `json:"namespace"`
-			UID             string                   `json:"uid"`
-			Version         string                   `json:"version"`
+			CreatedAt       time.Time        `json:"createdAt"`
+			Health          map[string]any   `json:"health"`
+			Images          []string         `json:"images"`
+			Info            []map[string]any `json:"info"`
+			NetworkingInfo  map[string]any   `json:"networkingInfo"`
+			ParentRefs      []map[string]any `json:"parentRefs"`
+			ResourceVersion string           `json:"resourceVersion"`
+			Group           string           `json:"group"`
+			Kind            string           `json:"kind"`
+			Name            string           `json:"name"`
+			Namespace       string           `json:"namespace"`
+			UID             string           `json:"uid"`
+			Version         string           `json:"version"`
 		} `json:"nodes"`
 		OrphanedNodes []struct {
-			CreatedAt       time.Time                `json:"createdAt"`
-			Health          map[string]interface{}   `json:"health"`
-			Images          []string                 `json:"images"`
-			Info            []map[string]interface{} `json:"info"`
-			NetworkingInfo  map[string]interface{}   `json:"networkingInfo"`
-			ParentRefs      []map[string]interface{} `json:"parentRefs"`
-			ResourceVersion string                   `json:"resourceVersion"`
-			Group           string                   `json:"group"`
-			Kind            string                   `json:"kind"`
-			Name            string                   `json:"name"`
-			Namespace       string                   `json:"namespace"`
-			UID             string                   `json:"uid"`
-			Version         string                   `json:"version"`
+			CreatedAt       time.Time        `json:"createdAt"`
+			Health          map[string]any   `json:"health"`
+			Images          []string         `json:"images"`
+			Info            []map[string]any `json:"info"`
+			NetworkingInfo  map[string]any   `json:"networkingInfo"`
+			ParentRefs      []map[string]any `json:"parentRefs"`
+			ResourceVersion string           `json:"resourceVersion"`
+			Group           string           `json:"group"`
+			Kind            string           `json:"kind"`
+			Name            string           `json:"name"`
+			Namespace       string           `json:"namespace"`
+			UID             string           `json:"uid"`
+			Version         string           `json:"version"`
 		} `json:"orphanedNodes"`
 	}
 )
@@ -129,7 +151,7 @@ func (c *ArgoClient) FetchApplications() error {
 	writer := csv.NewWriter(out)
 	defer writer.Flush()
 
-	if err := writer.Write([]string{"Application", "Group", "Version", "Kind", "Name"}); err != nil {
+	if err := writer.Write([]string{"Application", "Group", "Version", "Kind", "Namespace/Name"}); err != nil {
 		return err
 	}
 
@@ -160,40 +182,44 @@ func (c *ArgoClient) FetchApplications() error {
 	}
 
 	for _, app := range r.Items {
-		c.logger.Debug().Str("app", app.Metadata.Name).Msg("fetching resource tree")
-		getResourceTreeReq, err := http.NewRequest(http.MethodGet, c.url.JoinPath("/api/v1/applications", app.Metadata.Name, "resource-tree").String(), nil)
-		if err != nil {
-			return err
-		}
-
-		getResourceTreeReq.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.token))
-
-		getResourceTreeResp, err := http.DefaultClient.Do(getResourceTreeReq)
-		if err != nil {
-			return err
-		}
-
-		if getResourceTreeResp.StatusCode != http.StatusOK {
-			return fmt.Errorf("invalid status code recieved while fetching resource tree for application %s: %d", app.Metadata.Name, getResourceTreeResp.StatusCode)
-		}
-
-		body, err := io.ReadAll(getResourceTreeResp.Body)
-		if err != nil {
-			return err
-		}
-
-		r := new(GetResouceTreeResponse)
-		if err := json.Unmarshal(body, r); err != nil {
-			return err
-		}
-
-		for _, node := range r.Nodes {
-			if err := writer.Write([]string{app.Metadata.Name, node.Group, node.Version, node.Kind, node.Name}); err != nil {
+		if app.Status.Health.Status == "Healthy" || app.Status.Health.Status == "Progressing" {
+			c.logger.Debug().Str("app", app.Metadata.Name).Msg("matched healthy/progressing app: fetching resource tree")
+			getResourceTreeReq, err := http.NewRequest(http.MethodGet, c.url.JoinPath("/api/v1/applications", app.Metadata.Name, "resource-tree").String(), nil)
+			if err != nil {
 				return err
 			}
-		}
 
-		c.logger.Debug().Str("app", app.Metadata.Name).Msg("fetched resource tree")
+			getResourceTreeReq.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.token))
+
+			getResourceTreeResp, err := http.DefaultClient.Do(getResourceTreeReq)
+			if err != nil {
+				return err
+			}
+
+			if getResourceTreeResp.StatusCode != http.StatusOK {
+				return fmt.Errorf("invalid status code recieved while fetching resource tree for application %s: %d", app.Metadata.Name, getResourceTreeResp.StatusCode)
+			}
+
+			body, err := io.ReadAll(getResourceTreeResp.Body)
+			if err != nil {
+				return err
+			}
+
+			r := new(GetResouceTreeResponse)
+			if err := json.Unmarshal(body, r); err != nil {
+				return err
+			}
+
+			for _, node := range r.Nodes {
+				if err := writer.Write([]string{app.Metadata.Name, node.Group, node.Version, node.Kind, node.Namespace + "/" + node.Name}); err != nil {
+					return err
+				}
+			}
+
+			c.logger.Debug().Str("app", app.Metadata.Name).Msg("fetched resource tree")
+		} else {
+			c.logger.Warn().Str("app", app.Metadata.Name).Str("status", app.Status.Health.Status).Msg("failed to match health status of healthy/progressing")
+		}
 	}
 
 	return nil
